@@ -44,3 +44,9 @@ module com.example.myapp {
 ### 모듈의 단점
 - 출시한지 3년이 지났음에도 모듈 도입은 여전히 불완전하고 불규칙적이다.
 
+### 참고해보면 좋을 문서
+- https://www.techlibrary.co.kr/news/91492
+- https://www.oracle.com/kr/corporate/features/understanding-java-9-modules.html?utm_source=chatgpt.com
+
+- 실제 모듈화를 진행했던 문서
+- https://aws.amazon.com/ko/blogs/tech/amazon-corretto-base-container-diet/?utm_source=chatgpt.com
