@@ -59,9 +59,48 @@ public record FXOrder (int units, CurrencyPair pair, Side side)
 다음 몇가지 질문에 대한 대답
 
 - 하이버네이트에서 그들을 프록시 할 수 있나?
+    - JPA/Hibernate 에서 record를 엔티티(@Entity) 로 사용할 수 있는지, 프록시 객체로 다룰 수 있는지에 대한것
+    - Hibernate 는 엔티티를 직접 로드하지 않고 프록시 객체를 생성하여 참조
+    - Order 클래스가  있으면 Hibernate는 Order$$HibernateProxy 같은 클래스를 내부적으로 생성
+    - record는 Hibernate에서 프록시 할 수 있을까? → record 는 final이라 불가능
+    - record는 final 클래스이기 때문에 서브 클래스를 만들 수 없음 → 상속 불가능 (private final)
+    - Hibernate는 기본 생성자가 NoArgsConstructor 를 필요로 하지만 record는 생성자가 final
 - 전통적인 자바 빈과 완전히 호환되나?
+    - JavaBean 조건 만족하는 객체
+        - 기본 생성자 제공
+        - Getter와 Setter 제공
+        - 직렬화 가능
+    - record는 자동으로 생성자 toString(), equals(), hashCode()를 제공
+        - Getter는 있지만 Setter는 없음 → record는 불변 객체
+        - 기본 생성자 없음 → record는 모든 필드를 초기화해야함
+    - record는 전통적인 JavaBean과 완전히 호환되지 않는다.
 - 이름 제거와 형식 유연성을 지원하나?
+    - 이름 제거 : 불필요한 상용구 코드 (Boilerplate Code) 줄이는것을 의미
+    - 기존 Java 클래스에서는 필드 선언, 생성자, Getter, Setter, equals(), hashCode(), toString() 을 전부 작성해야 하지만 record를 사용하면 자동으로 생성되므로 코드가 단순해진다.
+    - 형식 유연성 :
+        - 데이터 타입을 변경할 때의 유연성을 의미
+        - record의 결정적인 제한점은 final이라서 한번 정해지면 불가능, 상속 불가, 제네릭 지원 가능 (형식 유연성을 어느 정도 제공하지만, 기존 Java 클래스보다 . 더유연하다고 보긴 어렵다.)
 - 패턴 매칭과 구조 분해가 지원될까?
+    - 패턴 매칭 : instanceof 별도의 변수를 선언하지 않아도 자동으로 형변환 수행 - 자바 16부터 지원
+    
+    ```jsx
+    public record FXOrder(int units, CurrencyPair pair, Side side) {}
+    
+    void processOrder(Object obj) {
+        if (obj instanceof FXOrder fxOrder) { // 패턴 매칭 적용
+            System.out.println("Order units: " + fxOrder.units()); // 자동 형변환
+        }
+    }
+    ```
+    
+    - 구조 분해 : 객체에서 개별 필드를 변수로 추출하는 기능
+    
+    ```jsx
+    FXOrder order = new FXOrder(10, CurrencyPair.USD_EUR, Side.BUY);
+    int units, CurrencyPair pair, Side side;
+    (units, pair, side) = order; // ❌ 컴파일 오류! Java는 구조 분해를 지원하지 않음.
+    ```
+    
 
 ### 명목적 타이핑
 
