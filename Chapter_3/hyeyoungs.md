@@ -35,7 +35,7 @@ String query = """
     - 즉, 코드에 적힌 Text 블록과 실제 클래스 파일에 저장된 문자열이 다를 수도 있음
 
 
-#### 런타임에서는 문자열 리털러과 Text 블록의 차이가 없음
+#### 런타임에서는 문자열 리터럴과 Text 블록의 차이가 없음
   - 프로그램이 실행될 때 "Hello, world!"와 """Hello, world!"""는 같은 문자열처럼 동작함 
   - 클래스 파일에는 문자열이 어떻게 입력되었는지가 남아 있지 않고, 변환된 최종 문자열만 저장됨
 
@@ -149,6 +149,11 @@ Car newCar = new Car("BMW", 2023); // 새 객체 생성
     private final String currency;
 
         public Money(int amount, String currency) {
+            this.amount = amount;
+            this.currency = currency;
+        }
+    
+        public Money(String currency, int amount) {
             this.amount = amount;
             this.currency = currency;
         }
@@ -400,4 +405,9 @@ java --enable-preview Main
 - 프리뷰 기능을 통해 실험적인 기능을 미리 경험하고, 향후 변경 가능성도 고려해야 함
 
 ## 내 생각
-자바는 점점 더 간결하고 타입 안전성을 강화하는 방향으로 발전 중임
+- 자바는 점점 더 간결하고 타입 안전성을 강화하는 방향으로 발전 중임
+- dto, command 같은 경우는 record를 사용하면 값 안전하게 사용하고, 성능도 높일 것 같음
+
+## 공부해볼만한 부분
+- [invoke dynamic](https://blog.hexabrain.net/400)
+- [Record 성능](https://gree-me.tistory.com/20)
