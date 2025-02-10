@@ -107,6 +107,12 @@ record Person(String name, int age) {}
   ```java
   record Car(String model, int year) {} // 레코드 클래스 선언
   ```
+  
+  - toString(), equals(), hashCode() 메서드는 invokedynamic 기반의 메커니즘을 사용해서 구현됨
+    - invokedynamic은 런타임에 동적으로 메서드를 호출하는 방식을 지원하는 자바 가상 머신의 명령어
+    - invokedynamic을 활용을 왜 할까?
+      - 기존에는 모든 record마다 toString(), equals(), hashCode()를 클래스 로딩 시점에 생성했지만,
+        invokedynamic을 사용하면 필요할 때만 생성하고 공통 로직 재사용 가능
 
 #### 레코드 컴포넌트 (Record Component)
 - record 선언부에서 정의하는 필드 역할을 하는 값들 
@@ -140,39 +146,6 @@ Car car = new Car("Tesla", 2023);
 Car newCar = new Car("BMW", 2023); // 새 객체 생성
 ```
 
-#### 명목적 타이핑 (Nominal Typing)
--  같은 데이터 타입이라도 다른 의미를 가지는 경우 record를 사용하면 안전하게 구분할 수 있음 
-  - 일반 클래스 사용 (오류 발생 가능)
-    ```java
-    class Money {
-    private final int amount;
-    private final String currency;
-
-        public Money(int amount, String currency) {
-            this.amount = amount;
-            this.currency = currency;
-        }
-    
-        public Money(String currency, int amount) {
-            this.amount = amount;
-            this.currency = currency;
-        }
-    }
-  
-    Money money1 = new Money(1000, "USD");
-    Money money2 = new Money("USD", 1000); // ❌ 실수 가능
-    ```
-    → amount와 currency 순서를 헷갈릴 수 있음
-
-  - record를 사용하면?
-    ```java
-      record Money(int amount, String currency) {}
-      
-      Money money1 = new Money(1000, "USD");
-      Money money2 = new Money("USD", 1000); // ❌ 타입이 다르면 컴파일 오류 발생!
-     ``` 
-    → 각 컴포넌트의 타입과 순서가 정확하게 지정되므로 실수 방지 가능
-
 #### 콤팩트 레코드 생성자 (Compact Constructor)
 - 일반 record는 생성자를 자동으로 생성하지만, 데이터 유효성 검사가 필요할 때 직접 생성자를 만들 수 있음
 <br>이때 콤팩트 생성자(Compact Constructor) 를 사용하면 필드 선언 없이 검증 로직만 작성 가능
@@ -202,14 +175,6 @@ Car newCar = new Car("BMW", 2023); // 새 객체 생성
     - 자동으로 필드가 할당되므로, 검증 로직만 추가하면 됨
     - 코드가 더 간결하고 가독성이 좋아짐
 
-
-### 개념
-  - 레코드 클래스 (Record Class) : record 키워드로 선언하는 불변 데이터 클래스 
-  - 레코드 컴포넌트 (Record Component) : record 선언부에 정의된 필드 역할을 하는 값 
-  - 상태 설명 (State Description) : record는 불변이라 값 변경 불가 
-  - 명목적 타이핑 (Nominal Typing)	: 같은 데이터 타입이라도 의미를 구분할 수 있도록 타입을 강제 
-  - 콤팩트 레코드 생성자 (Compact Constructor) : 필드 할당 없이 검증 로직만 작성하는 생성자
-
 ### 정리 : 클래스보다 record가 더 간결하고, 실수 방지 기능이 뛰어남
   - 불변 객체가 필요할 때 record 사용!
   - 자동 생성되는 메서드 활용 (equals(), hashCode(), toString())
@@ -220,7 +185,6 @@ Car newCar = new Car("BMW", 2023); // 새 객체 생성
 - record는 값 객체를 간단하게 만들기 위한 도구
 - equals(), hashCode(), toString()을 자동 제공하지만 오버라이드 가능 
 - sealed interface와 결합 가능하여 타입 안정성을 높일 수 있음
-- Rust의 trait처럼 쓰기엔 제한이 많음
 - 프로젝트 발할라(Value Class)가 도입되면, record의 필요성이 애매해질 가능성이 있음
 
 <br>
@@ -241,33 +205,6 @@ Car newCar = new Car("BMW", 2023); // 새 객체 생성
   - Shape 클래스를 sealed로 선언
   - permits 키워드를 사용해 상속할 수 있는 클래스들을 명시적으로 지정
   - Circle, Rectangle, Triangle 세 가지 클래스만 Shape을 상속 가능!
-
-#### sealed 클래스를 상속받는 클래스의 종류
-sealed 클래스를 상속하는 클래스는 세 가지 키워드 중 하나를 사용해야 함.
-
-1) final: 더 이상 상속 불가능
-  ```java
-  sealed class Shape permits Circle, Rectangle, Triangle {}
-  final class Circle extends Shape {}  // 더 이상 하위 클래스를 만들 수 없음
-  // Circle은 Shape을 상속하지만, 다른 클래스가 Circle을 다시 상속할 수 없음.
-  ```
-
-2) sealed: 추가적인 상속 제한
-  ```java
-  sealed class Shape permits Circle, Rectangle, Triangle {}
-  sealed class Rectangle extends Shape permits FilledRectangle, OutlinedRectangle {}
-  
-  final class FilledRectangle extends Rectangle {}  //  더 이상 상속 불가능
-  final class OutlinedRectangle extends Rectangle {}  //  더 이상 상속 불가능
-  // Rectangle 자체도 sealed → 허용된 클래스만 추가적으로 상속 가능
-   ```
-
-3) non-sealed: 자유롭게 상속 가능
-  ```java
-  sealed class Shape permits Circle, Rectangle, Triangle {}
-  non-sealed class Triangle extends Shape {}  // 다른 클래스들이 Triangle을 자유롭게 상속 가능
-  // Triangle을 non-sealed로 선언 → 누구든지 Triangle을 상속할 수 있음
-  ```
 
 ### sealed 타입의 핵심 장점
 - 불필요한 상속을 방지하여 유지보수성을 높임
@@ -308,8 +245,6 @@ sealed 클래스를 상속하는 클래스는 세 가지 키워드 중 하나를
 - 예측 가능한 타입 계층을 만들고 싶을 때
 - 패턴 매칭과 함께 사용할 때 타입 안정성을 높이고 싶을 때
 - 기존 enum으로는 부족한, 좀 더 확장 가능한 구조가 필요할 때
-
-- 즉, sealed 타입은 "열린 enum" 같은 느낌 → 필요한 경우에는 enum보다 더 강력한 기능을 제공
 
 <br>
 
