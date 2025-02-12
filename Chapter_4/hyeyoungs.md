@@ -611,21 +611,26 @@ Code:
 ## 4.5 리플렉션
 ### 4.5.1 리플렉션 소개
 - 리플렉션은 동적인 런타임 메커니즘
-- 컴파일 시에는 어떤 유형인지 알 수 없고 매우 일반적인 방식으로 처리해야 한다면 이 유연성을 활용해 개방적이고 확장 가능한 시스템을 구축할 수 있음
-- 디버거, 코드 브라우저, 플러그인 아키텍처, 대화형 환경,  REPL(read-eval-print loop)도 리플렉션을 광범위하게 활용
-- 메서드를 나타내는 객체를 사용하는 가장 자연스러운 방법은 해당 메서드를 호출하는 것
-  - java.lang.reflect.Method 클래스는 해당 Method 객체가 나타내는 메서드를 호출하는 효과를 갖는 invoke() 메서드를 정의
-
-```Java
-jshell > Object ret = m.invoke(o);
-Feed the pet
-ret ==> null ← feed()메서드가 실제로 void이므로 호출이 null을 반환
-```
+  - 프로그램이 실행 중(runtime)에 클래스, 메서드, 필드 등의 정보를 동적으로 조회하고 사용할 수 있는 기능 
+  - 컴파일 시에는 어떤 유형인지 알 수 없고 매우 일반적인 방식으로 처리해야 한다면 이 유연성을 활용해 개방적이고 확장 가능한 시스템을 구축할 수 있음
+- 활용 예
+  - 디버거, 코드 브라우저, 플러그인 아키텍처, 대화형 환경,  REPL(read-eval-print loop) 같은 동적 환경에서 사용됨
+  - 메서드를 나타내는 객체를 사용하는 가장 자연스러운 방법은 해당 메서드를 호출하는 것
+    - java.lang.reflect.Method 클래스는 해당 Method 객체가 나타내는 메서드를 호출하는 효과를 갖는 invoke() 메서드를 정의
+	
+	```Java
+	jshell > Object ret = m.invoke(o);
+	Feed the pet
+	ret ==> null ← feed()메서드가 실제로 void이므로 호출이 null을 반환
+	```
 - 리플렉션은 필드, 애너테이션, 생성자 등 자바 타입 시스템과 언어 내에서 다른 기본 개념을 나타내는 객체도 제공
   - java.lang.reflect 패키지에서 찾을 수 있고, 그 중 일부는 제네릭 유형
 - 새로운 리플렉션 API에서는 모듈의 동적 기능인 모듈 발견( module discovery)도 가능
 
 ### 4.5.2 클래스 로딩과 리플렉션 결합하기
+- ClassLoader를 활용하면 실행 중 새로운 클래스를 동적으로 로드할 수 있음
+- 아래 예제에서 EasyLoader는 파일에서 읽은 클래스 바이트코드를 메모리에 로드하는 역할을 함
+
 ```Java
 public class NativeMethodChecker {
 
@@ -639,32 +644,25 @@ public class NativeMethodChecker {
 			return defineClass(null,b,0,b.length);
 		}
 	}
-
-	public static void main(String[] args){
-		if (args.length > 0 ){
-			var loader = new EasyLoader();
-			for ( var file : args){
-				System.out.println(file+ " :: ");
-				try {
-					var clazz = loader.loadFromDisk(file);
-					for ( var m : clazz.getMethods()){
-					
-					}
-				}
-			}
-		}
-	}
+	...
 }
 ```
 
 ### 4.5.3 리플렉션의 문제점
-- 자바 컬렉션 이전에 만들어진 매우 오래된 API로, 배열 타입이 여기저기에 존재함
-- 어떤 메서드 오버로드를 호출할 지 결정하는 것은 쉽지 않음
-- API에서는 메서드에 대한 리플렉션적인 접근을 위해 getMethod()와 getDeclaredMethod()라는 서로 다른 두 가지 메서드가 제공됨
-- API는 접근 제어를 무시하는 데 사용할 수 있는 setAccessible()메서드를 제공함
-- 리플렉션 호출에 대한 예외 처리가 복잡하다. 체크된 예외(checked exception)가 런타임 예외로 변환됨
-- 원시 타입을 전달하거나 반환하는 리플렉션 호출을 수행하려면 boxing과 unboxing이 필요함
-- 원시 타입에는 플레이스홀더 클래스 객체(예: int.class)가 필요하며, 이는 실제로는 Class\<Integer> 타입임
-- void 메서드에는 java.lang.Void 타입을 도입해야 함
-- 리플렉션의 철학적인 문제
-  - 리플렉션을 골든 해머 기법으로 사용할 수 있다(내부 프레임워크 안티패턴)
+- 오래된 API
+  - 자바 컬렉션이 나오기 전 설계된 API라, 배열 타입을 많이 사용함
+- 오버로드 메서드 선택 어려움
+  - 같은 이름의 메서드가 여러 개 있으면 올바른 메서드를 찾기 어려움
+- 복잡한 접근 제어
+  - setAccessible(true)를 사용하면 private 필드나 메서드도 접근 가능해 보안 문제가 생길 수 있음
+- 예외 처리 복잡함
+  - 체크 예외(Checked Exception)가 런타임 예외로 변환되어 다루기 어려움
+- 성능 저하
+  - 원시 타입(예: int)을 사용할 때 boxing/unboxing이 필요해 성능이 떨어짐
+- 골든 해머(Golden Hammer) 문제
+  - 모든 문제를 리플렉션으로 해결하려는 안티패턴(내부 프레임워크 남용) 발생 가능
+
+### 정리 : 리플렉션
+- 리플렉션은 프로그램이 실행 중(runtime)에 클래스, 메서드, 필드 등의 정보를 동적으로 조회하고 사용할 수 있는 기능임
+- 리플렉션은 동적인 런타임 기능을 제공하지만, 성능 저하와 복잡성 문제가 있음
+- 따라서 일반적인 코드에서는 지양하고, 특별한 경우(플러그인 시스템, 프레임워크 개발)에서만 신중히 사용해야 함
