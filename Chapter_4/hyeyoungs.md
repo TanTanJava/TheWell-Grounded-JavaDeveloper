@@ -77,7 +77,7 @@
 
 <br>
 
-## 4.2 클래스로더
+## 4.2 클래스 로더
 - 클래스로더 : 자바에서 클래스를 JVM 메모리에 올리는 역할을 하는 특수한 객체
   - ClassLoader를 확장하는 자바의 클래스
   - 그 자체로 자바의 타입
@@ -127,7 +127,7 @@ protected Class<?> loadClass(String name, boolean resolve)
 			}
 	
 			if(c == null){
-				//그래도 클래스를 찾을 수 없는 경우
+				// 그래도 클래스를 찾을 수 없는 경우
 				// findClass를 호출해 클래스를 찾는다
 				c = findClass(name);
 				//...
@@ -223,12 +223,18 @@ protected Class<?> loadClass(String name, boolean resolve)
 
 ## 4.3 클래스 파일 살펴보기
 ### 4.3.1 javap 소개
+javap는 컴파일된 .class 파일을 분석하는 명령어<br>
+작성한 자바 코드를 컴파일한 후, 바이트코드(기계가 읽을 수 있는 코드)로 변환된 내용을 확인
+
 - 사용 방법
   ```Java
   $ javap LoadSomeClasses.class
   ```
 
 ### 4.3.2 메서드 시그니처를 위한 내부 형식
+자바의 메서드는 **입력값(파라미터)과 반환값(리턴 타입)으로 이루어진 시그니처(signature)**를 가지고 있음<br>
+이걸 .class 파일에서 표현할 때는 "타입 기술자(type descriptor)" 라는 걸 사용
+
 - 메서드 시그니처(method signature)
   - 메서드 시그니처의 각 타입은 타입 기술자로 표현
 - 타입 기술자(type descriptor)
@@ -255,22 +261,9 @@ protected Class<?> loadClass(String name, boolean resolve)
 
 ### 4.3.3 상수 풀
 - 상수 풀(constant pool)
-  - 클래스 파일의 다른 (상수) 요소에서 편리한 바로 가기를 제공하는 영역
-- playpen 샘플 클래스
-  ```Java
-  public class ScratchImpl {
-      private static ScratchImpl inst = null;
-  
-      private ScratchImpl(){
-      
-      };
-      private void run(){};
-      public static void main(String[] args){
-          inst = new ScratchImpl();
-          inst.run();
-      }
-  }
-  ```
+  - 클래스 파일 내부에는 **상수 풀(Constant Pool)**이라는 영역 있음
+  - 클래스 파일의 다른 상수(ex. 변수, 문자열, 숫자, 메서드, 필드 등) 요소에서 편리한 바로 가기를 제공하는 영역 
+
 - 상수 풀 항목
 
 | 이름                 | 설명                                                  |
@@ -290,14 +283,42 @@ protected Class<?> loadClass(String name, boolean resolve)
 | MethodHandle       | invokedynamic 메커니즘의 일부                              |
 | MethodType         | invokedynamic 메커니즘의 일부                              |
 
+- playpen 샘플 클래스
+  ```Java
+  public class ScratchImpl {
+      private static ScratchImpl inst = null;
+  
+      private ScratchImpl(){
+      
+      };
+      private void run(){};
+      public static void main(String[] args){
+          inst = new ScratchImpl();
+          inst.run();
+      }
+  }
+  // 이 코드를 .class 파일로 변환하면, 상수 풀에 저장될 항목들이 생김
+  // 저장되는 것들
+  // 1. 클래스 이름 (ScratchImpl) → Class 항목
+  // 2. 메서드 이름 (run, main) → Methodref 항목
+  // 3. 문자열 (없음, 하지만 있으면 String 항목에 저장)
+  // 4. 변수 (inst) → Fieldref 항목
+  ```
+
+### 정리 : .class 파일이 내부적으로 어떻게 저장되는지
+- javap 명령어를 사용하면 .class 파일을 분석할 수 있음
+- **메서드 시그니처(타입 기술자)**는 (입력 타입)반환 타입 형식으로 저장됨
+- **상수 풀(Constant Pool)**은 자주 쓰이는 값(클래스, 메서드, 필드, 문자열 등)을 저장하는 공간임
+
+<br>
+
 ## 4.4 바이트코드
 - 바이트코드
-  - 사람이 읽을 수 있는 소스 코드와 기계 코드의 중간에 있는 프로그램의 중간 표현
+  - 사람이 읽을 수 있는 소스 코드와 컴퓨터가 실행하는 기계 코드의 중간에 있는 프로그램의 중간 표현
   - 자바 소스 코드 파일에서 javac에 의해 생성
-  - 일부 고급 언어 기능은 컴파일돼 바이트코드에 나타나지 않음 <br>예를 들어 자바의 루프 구조들은 바이트코드의 분기 명령어로 바뀌면서 사라짐
-  - 각 오퍼레이션 코드는 단일 바이트로 표현
-  - 바이트코드는 '가상의 CPU를 위한 기계어 코드'가 아닌 추상적인 표현
-  - 바이트코드는 일반적으로 JIT 방식으로 기계어 코드로 추가적으로 컴파일 가능
+  - 자바의 for, while 같은 제어문이 사라지고 분기 명령어로 바뀜
+  - 각 오퍼레이션 코드는 단일 바이트(1바이트)로 표현
+  - JIT(Just-In-Time) 컴파일러가 실행하면서 기계어 코드로 바꿔 더 빠르게 실행될 수 있음
 
 ### 4.4.1 클래스 분해하기
 - 클래스 분해 방법
@@ -305,6 +326,7 @@ protected Class<?> loadClass(String name, boolean resolve)
   $ javap -c -p ScratchImpl.class
   ```
 - 정적 블록
+  - 클래스가 처음 로드될 때 실행되는 코드 블록
   - 변수 초기화가 이루어지는 곳
   - 인스턴스를 null로 초기화
   - 예시
@@ -312,20 +334,20 @@ protected Class<?> loadClass(String name, boolean resolve)
   static {};
   
   Code:
-      0: aconst_null
-      1: putstatic #10 // 필드 inst: ScratchImpl;
+      0: aconst_null // null 값을 로드
+      1: putstatic #10 // inst 변수를 null로 설정
       4: return
   ```
 - 생성자
+  - 자바에서는 모든 클래스가 Object 클래스를 상속하므로, 생성자가 실행될 때 항상 super() 호출이 포함됨
   ```Shell
   private ScratchImpl();
   
   Code:
-      0: aload_0
-      1: invokespecial #15 // Mehotd java/lang/Object."<init>":()V
+      0: aload_0 // this를 로드
+      1: invokespecial #15  // 부모 클래스(Object) 생성자 호출
       4: return
   ```
-  - 자바에서 void 생성자는 항상 암묵적으로 수퍼클래스 생성자 호출
   - aload_0
       - 참조(주소)를 로드하고, 0번째 로컬 변수를 로드하기 위한 단축 형태를 사용
       - 0번 로컬 변수는 현재 객체인 this
@@ -361,7 +383,6 @@ protected Class<?> loadClass(String name, boolean resolve)
 > JVM은 원시 타입에 대한 지식을 갖고 있다. 이는 일부 오퍼레이션 코드 패밀리에서 나타난다.<br> 
 > 일부 기본 오퍼레이션 코드 유형(store, add)은 작동하는 원시 타입에 따라 다른 여러 변형을 가져야 한다
 
-
 #### 오퍼레이션 코드
   - JVM 바이트코드는 **operation code의 연속**
   - 오퍼레이션 코드는 주어진 상태에서 스택을 찾고, 인수들을 제거하고 그 자리에 결과를 놓는 방식으로 스택을 변형
@@ -383,16 +404,19 @@ protected Class<?> loadClass(String name, boolean resolve)
   - 오퍼레이션 코드가 하는 일을 설명
 
 #### 오퍼레이션 코드 예시
-- getfield : 오퍼레이션 코드 이름
+- getfield : 오퍼레이션 코드 이름 (스택에서 객체를 꺼내 해당 객체의 필드를 읽는 명령어)
 - i1, i2 : 오퍼레이션 코드 뒤에 바이트 스트림에서 따라오는 두 개의 인수가 있음
 
+|이름|인수|스택 변화| 설명|
+| --------- | ----- | ------------------- | --------------------------------------|
 | getfield | i1, i2 | [obj] -> [val] | 스택 상단에 있는 객체로부터 지정된 상수 풀 인덱스에 있는 필드값을 가져온다 |
-| -------- | ------ | -------------- | ------------------------------------------ |
 
 ### 4.4.4 load 및 store 오퍼레이션 코드
+자바 프로그램에서 변수 값을 저장하고 불러오는 과정은 바이트코드에서 load와 store 명령어로 표현됨
+
 - 로드와 저장 오퍼레이션 코드
 
-| 이름        | 인수    | 스택 레이아웃             | 설명                                                               |
+| 이름        | 인수    | 스택 레이아웃             | 설명                                                |
 | --------- | ----- | ------------------- | ---------------------------------------------------------------- |
 | load      | (i1)  | [] -> [val]         | 로컬 변수에서 스택으로 값(원시 또는 참조)을 로드한다. 바로 가기 형식과 타입별 변형이 있다             |
 | ldc       | i1    | [] -> [val]         | 풀에서 스택으로 상수를 로드한다. 타입별과 광범위한 변형이 있다                              |
@@ -422,9 +446,9 @@ protected Class<?> loadClass(String name, boolean resolve)
   ```
   public int getI();
       Code:
-          0: aload_0
-          1: getfield #7 // 필드 i:I
-          4:ireturn
+          0: aload_0 // this 객체를 로드
+          1: getfield #7 // 필드 i 값을 가져옴
+          4:ireturn // 값을 반환
   public void setI(int);
       Code:
           0: aload_0
@@ -570,6 +594,19 @@ Code:
     - load/store 패밀리 내
       - aload_0, dstore_2 => 바로가기 형식 => 아래의 동등한 바이트 시퀸스보다 1바이트 짧음
       - aload 00 , dstore 02
+     
+### 정리 : 바이트 코드
+- 바이트코드는 자바 코드와 기계어 코드의 중간 단계
+  - javac로 컴파일하면 .class 파일이 만들어지고, JVM이 실행함
+- JVM은 연산을 스택 기반으로 처리
+  - 변수를 스택에 저장하고 꺼내면서 연산을 수행
+- getter, setter도 바이트코드로 변환됨
+  - getfield, putfield 같은 명령어를 사용.
+- 산술 연산도 스택에서 처리됨
+  - iconst_5, iconst_10, iadd 순서로 실행됨.
+- 바이트코드를 이해하면 자바가 JVM에서 어떻게 실행되는지, 그리고 최적화가 어떻게 이루어지는지 알 수 있음
+
+<br>
 
 ## 4.5 리플렉션
 ### 4.5.1 리플렉션 소개
