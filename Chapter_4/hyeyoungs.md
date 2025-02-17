@@ -712,6 +712,18 @@ public class NativeMethodChecker {
 - 리플렉션은 동적인 런타임 기능을 제공하지만, 성능 저하와 복잡성 문제가 있음
 - 따라서 일반적인 코드에서는 지양하고, 특별한 경우(플러그인 시스템, 프레임워크 개발)에서만 신중히 사용해야 함
 
+<br>
+
+## 💭 내 생각
+- 클래스 로딩은 프로그램 실행을 위해 필수적인 과정임
+<br>클래스 파일(.class)은 실행 전에 JVM이 메모리에 로드해야만 사용할 수 있기 때문
+<br>이 과정에서 로딩 → 링크 → 초기화 단계를 거침
+- 클래스 로딩 방식에는 정적 로딩과 동적 로딩이 있음
+<br>동적 로딩을 활용하면 유연한 시스템을 만들 수 있다는 것을 이번 챕터 통해 이해하게 됨 (사용자 정의 클래스 로더, 리플렉션 등)
+<br>적절한 방식으로 활용하면 유연한 설계를 할 수 있지만, 유지보수성과 성능을 고려해 신중하게 적용하는 것이 중요함
+
+<br>
+
 ## 📚 참고하면 좋을 자료
 - [Back to the Essence - Java 컴파일에서 실행까지 - (1)](https://github.com/HomoEfficio/dev-tips/blob/master/Back%20to%20the%20Essence%20-%20Java%20%EC%BB%B4%ED%8C%8C%EC%9D%BC%EC%97%90%EC%84%9C%20%EC%8B%A4%ED%96%89%EA%B9%8C%EC%A7%80%20-%20(1).md)
 - [Back to the Essence - Java 컴파일에서 실행까지 - (2)](https://github.com/HomoEfficio/dev-tips/blob/master/Back%20to%20the%20Essence%20-%20Java%20%EC%BB%B4%ED%8C%8C%EC%9D%BC%EC%97%90%EC%84%9C%20%EC%8B%A4%ED%96%89%EA%B9%8C%EC%A7%80%20-%20(2).md)
