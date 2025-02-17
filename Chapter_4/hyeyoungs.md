@@ -711,3 +711,7 @@ public class NativeMethodChecker {
 - 리플렉션은 프로그램이 실행 중(runtime)에 클래스, 메서드, 필드 등의 정보를 동적으로 조회하고 사용할 수 있는 기능임
 - 리플렉션은 동적인 런타임 기능을 제공하지만, 성능 저하와 복잡성 문제가 있음
 - 따라서 일반적인 코드에서는 지양하고, 특별한 경우(플러그인 시스템, 프레임워크 개발)에서만 신중히 사용해야 함
+
+## 📚참고하면 좋을 자료
+- [Back to the Essence - Java 컴파일에서 실행까지 - (1)](https://github.com/HomoEfficio/dev-tips/blob/master/Back%20to%20the%20Essence%20-%20Java%20%EC%BB%B4%ED%8C%8C%EC%9D%BC%EC%97%90%EC%84%9C%20%EC%8B%A4%ED%96%89%EA%B9%8C%EC%A7%80%20-%20(1).md)
+- [Back to the Essence - Java 컴파일에서 실행까지 - (2)](https://github.com/HomoEfficio/dev-tips/blob/master/Back%20to%20the%20Essence%20-%20Java%20%EC%BB%B4%ED%8C%8C%EC%9D%BC%EC%97%90%EC%84%9C%20%EC%8B%A4%ED%96%89%EA%B9%8C%EC%A7%80%20-%20(2).md)

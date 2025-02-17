@@ -343,6 +343,6 @@ java --enable-preview Main
 - 자바는 점점 더 간결하고 타입 안전성을 강화하는 방향으로 발전 중임
 - dto, command 같은 경우는 record를 사용하면 값 안전하게 사용하고, 성능도 높일 것 같음
 
-## 공부해볼만한 부분
+## 📚민교님께서 공유해주신 참고하면 좋을 자료
 - [invoke dynamic](https://blog.hexabrain.net/400)
 - [Record 성능](https://gree-me.tistory.com/20)
