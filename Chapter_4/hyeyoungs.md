@@ -627,6 +627,51 @@ Code:
   - java.lang.reflect 패키지에서 찾을 수 있고, 그 중 일부는 제네릭 유형
 - 새로운 리플렉션 API에서는 모듈의 동적 기능인 모듈 발견( module discovery)도 가능
 
+#### +) 리플렉션 예시
+- 리플렉션은 왜 사용하는가?
+  - 어떤 클래스가 실행될지 모르는 경우가 있을 수 있음
+  - 런타임에 클래스 정보를 얻고 동적으로 객체를 생성하거나 메서드를 실행해야 할 때 리플렉션을 사용
+  - 하지만 성능이 느릴 수 있으니 남용하면 안 됨
+
+- 예시
+  - 플러그인 시스템 : 실행 중에 클래스를 동적으로 로드해야 함
+  - 테스트 프레임워크 : @Test 메서드를 자동으로 실행해야 함
+  - DI 프레임워크 (Spring) : 의존성을 자동으로 주입해야 함
+  - ORM (Hibernate, JPA) : DB 필드를 객체 필드에 자동 매핑해야 함
+  - JSON 직렬화 / 역직렬화	: 런타임에 객체를 자동 변환해야 함
+    - JSON을 받아서 Java 객체로 변환해야 하는데,  해당 JSON이 어떤 클래스로 변환될지 컴파일 타임에 모른다고 가정
+      - 리플렉션 없이 할 경우
+        ```Java
+        class User {
+          public String name;
+          public int age;
+        }
+        
+        public static void main(String[] args) {
+          String json = "{ \"name\": \"Alice\", \"age\": 25 }";
+        
+          // 직접 파싱 (비효율적이고 클래스가 변경되면 코드도 수정해야 함)
+          User user = new User();
+          user.name = "Alice";  // JSON에서 가져와야 함
+          user.age = 25;        // JSON에서 가져와야 함
+        }
+        ```
+      - 리플렉션을 사용하면 자동화 가능
+        ```Java
+        import com.fasterxml.jackson.databind.ObjectMapper;
+
+        public class JsonReflectionExample {
+           public static void main(String[] args) throws Exception {
+                String json = "{ \"name\": \"Alice\", \"age\": 25 }";
+                // 런타임에 User 클래스로 변환 (리플렉션 사용)
+                ObjectMapper mapper = new ObjectMapper();
+                User user = mapper.readValue(json, User.class); // 리플렉션 내부 사용
+
+                System.out.println(user.name + ", " + user.age); // Alice, 25
+            }
+        }
+        ```
+
 ### 4.5.2 클래스 로딩과 리플렉션 결합하기
 - ClassLoader를 활용하면 실행 중 새로운 클래스를 동적으로 로드할 수 있음
 - 아래 예제에서 EasyLoader는 파일에서 읽은 클래스 바이트코드를 메모리에 로드하는 역할을 함
