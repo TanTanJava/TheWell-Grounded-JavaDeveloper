@@ -71,7 +71,7 @@ String message = switch(month) {
 > - 필요하면 Compact Constructor로 검증 로직 추가
 
 > record에 대한 또다른 견해
-> - 현재는 record를 쓰는 게 최선이지만, 미래에는 value class가 더 좋은 선택이 될 수도 있음!
+> <br>"현재는 record를 쓰는 게 최선이지만, 미래에는 value class가 더 좋은 선택이 될 수도 있음!"
 >   - record는 값 객체를 간단하게 만들기 위한 도구
 >   - equals(), hashCode(), toString()을 자동 제공하지만 오버라이드 가능
 >   - sealed interface와 결합 가능하여 타입 안정성을 높일 수 있음
